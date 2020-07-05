@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">DigiKet</string>
+
+    <string name="skip">Skip</string>
+    <string name="name">User Name</string>
+    <string name="email">User Email</string>
+    <string name="phone">Phone No</string>
+    <string name="password">User Password</string>
+    <string name="forget_password">Forget Password?</string>
+    <string name="new_user">New User?</string>
+    <string name="signup_here">SignUp Here</string>
+    <string name="login">SignIn</string>
+</resources>

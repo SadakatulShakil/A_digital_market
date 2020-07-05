@@ -1,26 +1,29 @@
 package com.example.digiketdigital_market.Login;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.digiketdigital_market.R;
-import com.example.digiketdigital_market.Retrofit.RetrofitClient;
+import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.IOException;
+import com.example.digiketdigital_market.Home.HomeActivity;
+import com.example.digiketdigital_market.R;
+import com.example.digiketdigital_market.pojoclass.User;
+import com.example.digiketdigital_market.pojoclass.UserResponse;
+import com.example.digiketdigital_market.retrofit.Api;
+import com.example.digiketdigital_market.retrofit.RetrofitInstance;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -53,46 +56,53 @@ public class SignUpActivity extends AppCompatActivity {
         String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
         String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        String name = nameET.getText().toString().trim();;
-        String email = emailET.getText().toString().trim();;
-        String phone = phoneET.getText().toString().trim();;
-        String created_app = currentDate+" "+currentTime;
+        String name = nameET.getText().toString().trim();
+
+        String email = emailET.getText().toString().trim();
+
+        String phone = phoneET.getText().toString().trim();
+
+        String created_app = currentDate + " " + currentTime;
         String password = passwordET.getText().toString().trim();
 
-        if(nameET!= null || emailET!= null || phoneET!= null || password != null){
+        ///Another idea of constructor
 
-            Call<ResponseBody> call = RetrofitClient
-                    .getInstance()
-                    .getApi()
-                    .user_reg(name,email,phone,created_app,password);
+        final User user = new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setCreatedApp(created_app);
+        user.setPhone(phone);
+        user.setPassword(password);
 
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    //String s = response.errorBody().toString();
-                    String s = null;
-                    try {
-                        s = response.body().string();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Log.d(TAG, "onResponse: " + s);
+        Retrofit  retrofit = RetrofitInstance.getRetrofitInstance();
+
+        Api api = retrofit.create(Api.class);
+
+        Call<UserResponse> call = api.user_reg(user);
+
+        call.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                if(response.code() == 200){
+                    Toast.makeText(SignUpActivity.this, "data inserted name is !" + user.getName(), Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
+            }
 
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    Toast.makeText(SignUpActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
 
-        }else{
-            Toast.makeText(this, "Please fill the all field !", Toast.LENGTH_SHORT).show();
-        }
+            }
+        });
+
     }
 
     private void init() {
         nameET = findViewById(R.id.etName);
-        emailET =findViewById(R.id.etEmail);
+        emailET = findViewById(R.id.etEmail);
         phoneET = findViewById(R.id.etPhone);
         passwordET = findViewById(R.id.etPassword);
         signUpBT = findViewById(R.id.btSignUp);
